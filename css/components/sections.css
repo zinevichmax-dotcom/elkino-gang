@@ -1,0 +1,139 @@
+/* =============================================
+   ELKINO GANG — Residents
+   ============================================= */
+
+.residents-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+.resident-card {
+  background: var(--forest);
+  border: 1px solid rgba(59, 212, 88, 0.06);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  text-align: center;
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+.resident-card:hover { border-color: rgba(59, 212, 88, 0.3); transform: translateY(-4px); }
+
+.resident-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--dark); border: 2px solid rgba(59, 212, 88, 0.2);
+  margin: 0 auto 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-heading); font-size: 24px; font-weight: 700; color: var(--green);
+}
+
+.resident-name { font-weight: 600; font-size: 16px; margin-bottom: 6px; }
+.resident-genre { font-size: 12px; color: var(--dew-50); margin-bottom: 12px; }
+.resident-links { display: flex; gap: 8px; justify-content: center; }
+.resident-link {
+  font-size: 11px; color: var(--green); text-decoration: none;
+  background: var(--green-dim); padding: 4px 10px; border-radius: 4px;
+  transition: background var(--transition-base);
+}
+.resident-link:hover { background: rgba(59, 212, 88, 0.25); }
+
+
+/* =============================================
+   ELKINO GANG — Media Archive
+   ============================================= */
+
+.archive-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+.archive-card {
+  background: var(--forest);
+  border: 1px solid rgba(59, 212, 88, 0.06);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+.archive-card:hover { border-color: rgba(59, 212, 88, 0.3); transform: translateY(-4px); }
+
+.archive-thumb {
+  height: 180px; background: var(--dark);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.archive-thumb-pattern {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(59, 212, 88, 0.03) 10px, rgba(59, 212, 88, 0.03) 20px);
+}
+.archive-thumb-icon { font-family: var(--font-heading); font-size: 48px; color: rgba(59, 212, 88, 0.15); z-index: 1; }
+
+.archive-body { padding: 20px 24px; }
+.archive-title { font-family: var(--font-heading); font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.archive-meta { font-size: 12px; color: var(--dew-50); margin-bottom: 12px; }
+.archive-stats { display: flex; gap: 16px; font-size: 11px; color: var(--green); }
+.archive-stats span { display: flex; align-items: center; gap: 4px; }
+.archive-stats svg { width: 12px; height: 12px; stroke: var(--green); fill: none; stroke-width: 1.5; }
+
+
+/* =============================================
+   ELKINO GANG — Merch
+   ============================================= */
+
+.merch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+.merch-card {
+  background: var(--forest);
+  border: 1px solid rgba(59, 212, 88, 0.06);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--transition-base);
+}
+.merch-card:hover { border-color: rgba(59, 212, 88, 0.3); transform: translateY(-4px); }
+
+.merch-img { height: 240px; background: var(--dark); display: flex; align-items: center; justify-content: center; }
+.merch-img-placeholder {
+  width: 100px; height: 100px;
+  border: 2px dashed rgba(59, 212, 88, 0.2); border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(59, 212, 88, 0.3); font-size: 13px; font-weight: 500;
+}
+
+.merch-body { padding: 20px 24px; }
+.merch-name { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
+.merch-desc { font-size: 13px; color: var(--dew-50); margin-bottom: 12px; }
+.merch-bottom { display: flex; justify-content: space-between; align-items: center; }
+.merch-price { font-family: var(--font-heading); font-size: 18px; font-weight: 700; color: var(--green); }
+.merch-btn {
+  font-size: 12px; font-weight: 600; color: var(--green);
+  border: 1px solid rgba(59, 212, 88, 0.3);
+  padding: 8px 16px; border-radius: 6px;
+  text-decoration: none; transition: all var(--transition-base);
+}
+.merch-btn:hover { background: var(--green-dim); }
+
+
+/* =============================================
+   ELKINO GANG — FAQ
+   ============================================= */
+
+.faq-list { max-width: 720px; }
+
+.faq-item {
+  border-bottom: 1px solid rgba(59, 212, 88, 0.08);
+  padding: 24px 0;
+  cursor: pointer;
+}
+
+.faq-q {
+  display: flex; justify-content: space-between; align-items: center;
+  font-weight: 500; font-size: 16px;
+}
+
+.faq-q .plus {
+  color: var(--green); font-size: 24px; font-weight: 300;
+  transition: transform var(--transition-base);
+}
+
+.faq-item.open .plus { transform: rotate(45deg); }
+
+.faq-a {
+  max-height: 0; overflow: hidden;
+  transition: max-height var(--transition-slow), padding var(--transition-slow);
+  color: var(--dew-50); font-size: 14px; line-height: 1.7;
+}
+
+.faq-item.open .faq-a { max-height: 200px; padding-top: 16px; }

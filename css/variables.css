@@ -1,0 +1,39 @@
+/* =============================================
+   ELKINO GANG — Design Tokens & Variables
+   ============================================= */
+
+:root {
+  /* Brand colors */
+  --deep: #0A1F04;
+  --dark: #0F2406;
+  --forest: #1A3A0A;
+  --moss: #2A5C14;
+  --green: #3BD458;
+  --green-dim: rgba(59, 212, 88, 0.15);
+  --green-glow: rgba(59, 212, 88, 0.4);
+
+  /* Text colors */
+  --dew: #E8F5E0;
+  --dew-50: rgba(232, 245, 224, 0.5);
+  --dew-20: rgba(232, 245, 224, 0.2);
+  --dew-08: rgba(232, 245, 224, 0.08);
+
+  /* Typography */
+  --font-heading: 'Unbounded', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Spacing */
+  --section-padding: 100px 40px;
+  --max-width: 1200px;
+
+  /* Border radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-base: 0.3s ease;
+  --transition-slow: 0.4s ease;
+}
