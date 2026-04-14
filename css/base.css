@@ -1,17 +1,21 @@
 /* =============================================
    ELKINO GANG — Base typography & document
    ============================================= */
-html {
+
+html,
+body {
   overflow-x: hidden;
   max-width: 100vw;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   font-family: var(--font-body);
   background: var(--color-deep);
   color: var(--color-dew);
-  overflow-x: hidden;
-  max-width: 100vw;
 }
 
 h1,

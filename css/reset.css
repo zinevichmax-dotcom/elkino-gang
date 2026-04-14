@@ -11,10 +11,6 @@
   box-sizing: border-box;
 }
 
-html {
-  -webkit-text-size-adjust: 100%;
-}
-
 img,
 picture,
 video {

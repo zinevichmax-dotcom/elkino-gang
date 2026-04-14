@@ -13,8 +13,9 @@ elkino-gang/
 │   ├── reset.css         # Минимальный сброс
 │   ├── variables.css     # Цвета, шрифты, отступы, радиусы (CSS variables)
 │   ├── base.css          # Типографика документа, утилиты
-│   ├── layout.css        # Секции, сетка футера, sticky-плеер, брейкпоинты
-│   └── components.css    # Блоки интерфейса + @keyframes
+│   ├── layout.css        # Секции, сетка футера, sticky-плеер
+│   ├── components.css    # Блоки интерфейса + @keyframes
+│   └── responsive.css    # Мобильная вёрстка (max-width: 900px), подключается последним
 ├── js/
 │   ├── main.js           # Подключает модули после DOMContentLoaded
 │   └── modules/
