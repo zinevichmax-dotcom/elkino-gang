@@ -1,0 +1,142 @@
+/* =============================================
+   ELKINO GANG — Layout: sections, shell, responsive
+   ============================================= */
+
+main section {
+  padding: var(--section-padding);
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-divider-mid) 50%,
+    transparent 100%
+  );
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+/* Отступ снизу под фиксированный плеер */
+.site-bottom-spacer {
+  height: var(--sticky-player-clearance);
+}
+
+/* ----- Site header / nav shell ----- */
+
+.site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--color-nav-bg);
+  backdrop-filter: blur(var(--blur-nav));
+  -webkit-backdrop-filter: blur(var(--blur-nav));
+  border-bottom: 1px solid var(--color-nav-border);
+  padding: 0 var(--section-padding-x);
+  height: var(--site-nav-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ----- Footer shell ----- */
+
+.site-footer {
+  background: var(--color-dark);
+  border-top: 1px solid var(--color-green-line-faint);
+  padding: 60px var(--section-padding-x) 40px;
+}
+
+.site-footer__inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+}
+
+.site-footer__bottom {
+  max-width: var(--max-width);
+  margin: 40px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-green-line-faint);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--color-dew-20);
+}
+
+/* ----- Sticky player bar ----- */
+
+.sticky-player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--color-sticky-bg);
+  backdrop-filter: blur(var(--blur-nav));
+  border-top: 1px solid var(--color-green-border-soft);
+  padding: 12px var(--section-padding-x);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* ----- Responsive ----- */
+
+@media (max-width: 900px) {
+  .site-nav {
+    padding: 0 20px;
+  }
+
+  .site-nav__links {
+    display: none;
+  }
+
+  main section {
+    padding: 60px 20px;
+  }
+
+  .residents-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .archive-grid,
+  .merch-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .site-footer__inner {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .radio-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .radio-bar {
+    margin: 0 auto;
+  }
+
+  .radio-schedule {
+    text-align: center;
+  }
+
+  .event-features {
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .sticky-player {
+    padding: 12px 16px;
+    gap: 12px;
+  }
+}

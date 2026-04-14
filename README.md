@@ -1,74 +1,60 @@
 # Elkino Gang — elkinogang.ru
 
-Сайт фестиваля Elkino Gang с интернет-радио.
+Статический лендинг фестиваля Elkino Gang с интернет-радио. Без сборщиков: открывается через Live Server или как `file://` (модули ES6 — для `file://` в некоторых браузерах может понадобиться локальный HTTP).
 
 ## Структура проекта
 
 ```
 elkino-gang/
-├── index.html                  # Главная страница
+├── index.html
+├── README.md
 ├── css/
-│   ├── variables.css           # Дизайн-токены (цвета, шрифты, размеры)
-│   ├── base.css                # Базовые стили, типографика, reset
-│   ├── animations.css          # Анимации и @keyframes
-│   └── components/
-│       ├── nav.css             # Навигация
-│       ├── hero.css            # Hero-секция
-│       ├── event.css           # Афиша / тизер ивента
-│       ├── radio.css           # Радио-секция
-│       ├── sections.css        # Резиденты, архив, мерч, FAQ
-│       └── footer-player.css   # Футер и sticky-плеер
+│   ├── main.css          # Точка входа (@import остальных)
+│   ├── reset.css         # Минимальный сброс
+│   ├── variables.css     # Цвета, шрифты, отступы, радиусы (CSS variables)
+│   ├── base.css          # Типографика документа, утилиты
+│   ├── layout.css        # Секции, сетка футера, sticky-плеер, брейкпоинты
+│   └── components.css    # Блоки интерфейса + @keyframes
 ├── js/
-│   ├── particles.js            # Эффект частиц на hero
-│   ├── faq.js                  # Аккордеон FAQ
-│   └── radio.js                # Радиоплеер (Icecast)
-├── assets/
-│   ├── img/                    # Изображения (фото, лого)
-│   └── fonts/                  # Локальные шрифты (если нужны)
-└── README.md
+│   ├── main.js           # Подключает модули после DOMContentLoaded
+│   └── modules/
+│       ├── particles.js  # Частицы в hero
+│       ├── faq.js        # Аккордеон FAQ + aria-expanded
+│       └── radio.js      # Поток + /radio-status, кнопки data-radio-toggle
+└── assets/
+    ├── images/           # og.jpg и прочие изображения (см. ниже)
+    ├── icons/
+    └── fonts/            # Локальные шрифты при отказе от Google Fonts
 ```
 
-## Стек
+## Как запускать локально
 
-- **Сайт**: HTML / CSS / Vanilla JS
-- **Хостинг**: VPS (Timeweb Cloud, Ubuntu 24.04)
-- **Веб-сервер**: Nginx + Certbot (SSL)
-- **Радио**: Icecast2 + Liquidsoap
-- **Деплой**: GitHub → автопулл каждые 5 мин
+1. **Live Server** (VS Code / Cursor): открыть корень репозитория, «Open with Live Server» на `index.html`.
+2. **Python**: из корня проекта  
+   `python3 -m http.server 8080`  
+   затем в браузере `http://127.0.0.1:8080/`.
+
+Модули `import` требуют **origin** (http/https), не открывайте `index.html` двойным кликом, если радио/модули не работают — используйте локальный сервер.
+
+## Open Graph
+
+В `index.html` указано `og:image`: `https://elkinogang.ru/assets/images/og.jpg`. Положите превью 1200×630 (или близко) в `assets/images/og.jpg` на сервере, чтобы превью корректно подтягивалось в соцсетях.
+
+## Радио (прод)
+
+- Поток: `https://elkinogang.ru/radio`
+- Статус: `https://elkinogang.ru/radio-status` (JSON Icecast; локально путь `/radio-status` отдаёт тот же бэкенд при прокси)
 
 ## Деплой
 
 ```bash
-git add . && git commit -m "описание" && git push
+git add . && git commit -m "Описание изменений" && git push
 ```
 
-Сервер подтянет изменения автоматически через cron (каждые 5 мин).
-Или вручную на сервере:
+Дальше — по вашему процессу (cron `git pull` на VPS и т.д.).
 
-```bash
-cd /var/www/elkinogang.ru && git pull origin main
-```
+## Стили и именование
 
-## Дизайн-токены
-
-| Токен | Значение | Назначение |
-|-------|----------|------------|
-| `--deep` | `#0A1F04` | Глубокий фон |
-| `--dark` | `#0F2406` | Фон секций |
-| `--forest` | `#1A3A0A` | Фон карточек |
-| `--green` | `#3BD458` | Акцент (из лого) |
-| `--dew` | `#E8F5E0` | Основной текст |
-| `--font-heading` | Unbounded | Заголовки |
-| `--font-body` | Inter | Основной текст |
-
-## Радио
-
-- Поток: `https://elkinogang.ru/radio`
-- Статус: `https://elkinogang.ru/radio-status`
-- Треки: `/var/www/radio/music/` на сервере
-- Конфиг: `/etc/liquidsoap/radio.liq`
-
-Добавить трек:
-```bash
-scp "трек.mp3" root@IP:/var/www/radio/music/
-```
+- Дизайн-токены в `css/variables.css` (`--color-*`, `--section-padding`, …).
+- Крупные блоки по смыслу BEM: `site-nav`, `site-nav__link`, `hero__title`, `site-footer__inner`, модификатор `resident-avatar--dashed`.
+- Один `<link rel="stylesheet" href="css/main.css">` в разметке.

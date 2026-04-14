@@ -1,0 +1,10 @@
+/* =============================================
+   ELKINO GANG — Точка входа (подключать один файл)
+   Порядок: сброс → токены → база → раскладка → компоненты
+   ============================================= */
+
+@import url("reset.css");
+@import url("variables.css");
+@import url("base.css");
+@import url("layout.css");
+@import url("components.css");

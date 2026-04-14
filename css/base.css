@@ -1,71 +1,34 @@
 /* =============================================
-   ELKINO GANG — Base / Reset / Typography
+   ELKINO GANG — Base typography & document
    ============================================= */
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
 body {
   font-family: var(--font-body);
-  background: var(--deep);
-  color: var(--dew);
+  background: var(--color-deep);
+  color: var(--color-dew);
   overflow-x: hidden;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: var(--font-heading);
 }
 
 a {
-  color: inherit;
   text-decoration: none;
 }
 
-section {
-  padding: var(--section-padding);
-  max-width: var(--max-width);
-  margin: 0 auto;
-}
-
-.section-tag {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--green);
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.section-tag svg {
-  width: 16px;
-  height: 16px;
-}
-
-.section-title {
-  font-size: clamp(28px, 4vw, 48px);
-  font-weight: 700;
-  color: var(--dew);
-  margin-bottom: 16px;
-  line-height: 1.2;
-}
-
-.section-desc {
-  font-size: 16px;
-  color: var(--dew-50);
-  max-width: 560px;
-  line-height: 1.7;
-  margin-bottom: 48px;
-}
-
-.divider {
+/* Visually hidden heading for landmarks without duplicating on-screen titles */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(59, 212, 88, 0.15) 50%, transparent 100%);
-  max-width: var(--max-width);
-  margin: 0 auto;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
