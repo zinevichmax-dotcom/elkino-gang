@@ -1373,6 +1373,8 @@ function App() {
   const handleSubmit = (type, data) => {
     fetch("https://script.google.com/macros/s/AKfycbz-Z2v3Bv5i5lW8eMnW-a0pEjcjfy55paT7eu0usqOnfIdkltYlCgzWAM8uS_Hotv_Q/exec", {
       method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain" },
       body: JSON.stringify({ _type: type, _formData: data }),
     }).catch(function(){});
     setSubmitType(type);
