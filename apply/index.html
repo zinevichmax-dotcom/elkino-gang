@@ -260,6 +260,7 @@ const Dropdown = ({ label, hint, required, options, value, onChange, placeholder
 
 const FileUpload = ({ label, hint, required, fileName, onChange }) => {
   const inputRef = useRef(null);
+  const [displayName, setDisplayName] = useState(fileName || "");
   return (
     <div style={{ marginBottom: 20 }}>
       <label style={{
@@ -273,18 +274,25 @@ const FileUpload = ({ label, hint, required, fileName, onChange }) => {
         margin: "0 0 8px", lineHeight: 1.4,
       }}>{hint}</p>}
       <input ref={inputRef} type="file" accept="image/*" onChange={e => {
-        if (e.target.files[0]) onChange(e.target.files[0].name);
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        setDisplayName(file.name);
+
+        const reader = new FileReader();
+        reader.onload = () => onChange(reader.result);
+        reader.readAsDataURL(file);
       }} style={{ display: "none" }} />
       <button type="button" onClick={() => inputRef.current?.click()}
         style={{
           width: "100%", padding: "16px", fontFamily: "Inter", fontSize: 13,
-          color: fileName ? C.text : C.textDim,
-          background: C.bg, border: `1px dashed ${fileName ? C.accent : C.border}`,
+          color: (displayName || fileName) ? C.text : C.textDim,
+          background: C.bg, border: `1px dashed ${(displayName || fileName) ? C.accent : C.border}`,
           borderRadius: 8, cursor: "pointer", transition: "all 0.2s",
           textAlign: "center",
         }}
       >
-        {fileName ? `📎 ${fileName}` : "Нажми, чтобы загрузить фото"}
+        {(displayName || fileName) ? `📎 ${displayName || fileName}` : "Нажми, чтобы загрузить фото"}
       </button>
     </div>
   );
@@ -404,8 +412,9 @@ const AvatarUpload = ({ imageUrl, onChange }) => {
   const handleChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      onChange(url);
+      const reader = new FileReader();
+      reader.onload = () => onChange(reader.result);
+      reader.readAsDataURL(file);
     }
   };
   return (
