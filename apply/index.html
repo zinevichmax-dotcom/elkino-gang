@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Подать заявку | ELKINO GANG — Сезон 9</title>
+  <meta name="description" content="Подай заявку на участие в фестивале Elkino Gang — стань артистом или организуй активность.">
+  <meta property="og:title" content="Elkino Gang — Подать заявку">
+  <meta property="og:description" content="Сезон 9. Подай заявку на выступление или активность.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://elkinogang.ru/apply/">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0A1F04; font-family: 'Inter', sans-serif; }
+    #root { min-height: 100vh; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.25.6/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const FONTS_CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+`;
+
+const C = {
+  bg: "#0A1F04",
+  surface: "#1A3A0A",
+  surfaceHover: "#1F4410",
+  card: "#0F2406",
+  border: "rgba(59,212,88,0.1)",
+  borderHover: "rgba(59,212,88,0.3)",
+  accent: "#3BD458",
+  accentDim: "rgba(59,212,88,0.15)",
+  accentGlow: "rgba(59,212,88,0.4)",
+  cardGlow: "rgba(59,212,88,0.25)",
+  cardAccent: "#3BD458",
+  text: "#E8F5E0",
+  textDim: "rgba(232,245,224,0.5)",
+  textMuted: "rgba(232,245,224,0.2)",
+  success: "#3BD458",
+  successDim: "rgba(59,212,88,0.15)",
+  white: "#E8F5E0",
+};
+
+// ─── COMPONENTS ───
+
+const Badge = ({ children }) => (
+  <span style={{
+    display: "inline-block",
+    padding: "3px 10px",
+    fontSize: 11,
+    fontFamily: "Unbounded",
+    fontWeight: 600,
+    color: C.accent,
+    background: C.accentDim,
+    borderRadius: 4,
+    letterSpacing: "0.05em",
+    textTransform: "uppercase",
+  }}>{children}</span>
+);
+
+const Input = ({ label, hint, required, value, onChange, type = "text", placeholder }) => (
+  <div style={{ marginBottom: 20 }}>
+    <label style={{
+      display: "block", fontFamily: "Unbounded", fontSize: 13,
+      fontWeight: 500, color: C.text, marginBottom: 6,
+    }}>
+      {label} {required && <span style={{ color: C.accent }}>*</span>}
+    </label>
+    {hint && <p style={{
+      fontFamily: "Inter", fontSize: 12, color: C.textDim,
+      margin: "0 0 8px", lineHeight: 1.4,
+    }}>{hint}</p>}
+    <input
+      type={type} value={value} onChange={e => onChange(e.target.value)}
+      placeholder={placeholder || ""}
+      style={{
+        width: "100%", padding: "12px 14px", fontFamily: "Inter",
+        fontSize: 14, color: C.text, background: C.card,
+        border: `1px solid ${C.border}`, borderRadius: 8,
+        outline: "none", transition: "border-color 0.2s", boxSizing: "border-box",
+      }}
+      onFocus={e => e.target.style.borderColor = C.accent}
+      onBlur={e => e.target.style.borderColor = C.border}
+    />
+  </div>
+);
+
+const TextArea = ({ label, hint, required, value, onChange, placeholder, rows = 2, maxLength }) => {
+  const charCount = (value || "").length;
+  const atLimit = maxLength && charCount >= maxLength;
+  const textRef = useRef(null);
+  useEffect(() => {
+    if (textRef.current) {
+      textRef.current.style.height = "auto";
+      textRef.current.style.height = textRef.current.scrollHeight + "px";
+    }
+  }, [value]);
+  const handleChange = (e) => {
+    const v = e.target.value;
+    if (maxLength && v.length > maxLength) return;
+    onChange(v);
+  };
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <label style={{
+        display: "block", fontFamily: "Unbounded", fontSize: 13,
+        fontWeight: 500, color: C.text, marginBottom: 6,
+      }}>
+        {label} {required && <span style={{ color: C.accent }}>*</span>}
+      </label>
+      {hint && <p style={{
+        fontFamily: "Inter", fontSize: 12, color: C.textDim,
+        margin: "0 0 8px", lineHeight: 1.4,
+      }}>{hint}</p>}
+      <textarea
+        ref={textRef}
+        value={value} onChange={handleChange}
+        placeholder={placeholder || ""} rows={rows}
+        style={{
+          width: "100%", padding: "12px 14px", fontFamily: "Inter",
+          fontSize: 14, color: C.text, background: C.card,
+          border: `1px solid ${atLimit ? C.accent : C.border}`, borderRadius: 8,
+          outline: "none", resize: "none", transition: "border-color 0.2s",
+          boxSizing: "border-box", overflow: "hidden",
+        }}
+        onFocus={e => e.target.style.borderColor = C.accent}
+        onBlur={e => e.target.style.borderColor = atLimit ? C.accent : C.border}
+      />
+      {maxLength && (
+        <div style={{
+          fontFamily: "Inter", fontSize: 11, marginTop: 4, textAlign: "right",
+          color: atLimit ? C.accent : C.textMuted,
+        }}>{charCount} / {maxLength}</div>
+      )}
+    </div>
+  );
+};
+
+const RadioGroup = ({ label, hint, required, options, value, onChange }) => (
+  <div style={{ marginBottom: 20 }}>
+    <label style={{
+      display: "block", fontFamily: "Unbounded", fontSize: 13,
+      fontWeight: 500, color: C.text, marginBottom: 6,
+    }}>
+      {label} {required && <span style={{ color: C.accent }}>*</span>}
+    </label>
+    {hint && <p style={{
+      fontFamily: "Inter", fontSize: 12, color: C.textDim,
+      margin: "0 0 8px", lineHeight: 1.4,
+    }}>{hint}</p>}
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+      {options.map(opt => (
+        <button key={opt} type="button" onClick={() => onChange(value === opt ? "" : opt)}
+          style={{
+            padding: "6px 12px", fontFamily: "Inter", fontSize: 12,
+            fontWeight: value === opt ? 600 : 400,
+            color: value === opt ? C.bg : C.textDim,
+            background: value === opt ? C.accent : C.bg,
+            border: `1px solid ${value === opt ? C.accent : C.border}`,
+            borderRadius: 6, cursor: "pointer", transition: "all 0.2s",
+          }}
+        >{opt}</button>
+      ))}
+    </div>
+  </div>
+);
+
+const CheckGroupWithOther = ({ label, hint, required, options, value = [], onChange, otherValue, onOtherChange }) => {
+  const hasOther = options.includes("Other") || options.includes("Другое");
+  const otherKey = options.includes("Other") ? "Other" : "Другое";
+  const otherSelected = value.includes(otherKey);
+  const toggle = (opt) => {
+    onChange(value.includes(opt) ? value.filter(v => v !== opt) : [...value, opt]);
+  };
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <label style={{
+        display: "block", fontFamily: "Unbounded", fontSize: 13,
+        fontWeight: 500, color: C.text, marginBottom: 6,
+      }}>
+        {label} {required && <span style={{ color: C.accent }}>*</span>}
+      </label>
+      {hint && <p style={{
+        fontFamily: "Inter", fontSize: 12, color: C.textDim,
+        margin: "0 0 8px", lineHeight: 1.4,
+      }}>{hint}</p>}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+        {options.map(opt => {
+          const sel = value.includes(opt);
+          return (
+            <button key={opt} type="button" onClick={() => toggle(opt)}
+              style={{
+                padding: "6px 12px", fontFamily: "Inter", fontSize: 12,
+                fontWeight: sel ? 600 : 400,
+                color: sel ? C.bg : C.textDim,
+                background: sel ? C.accent : C.bg,
+                border: `1px solid ${sel ? C.accent : C.border}`,
+                borderRadius: 6, cursor: "pointer", transition: "all 0.2s",
+              }}
+            >{opt}</button>
+          );
+        })}
+      </div>
+      {hasOther && otherSelected && (
+        <input
+          type="text" value={otherValue || ""} onChange={e => onOtherChange(e.target.value)}
+          placeholder="Укажи свой вариант"
+          style={{
+            width: "100%", padding: "10px 14px", fontFamily: "Inter",
+            fontSize: 13, color: C.text, background: C.bg, marginTop: 10,
+            border: `1px solid ${C.border}`, borderRadius: 8,
+            outline: "none", boxSizing: "border-box",
+          }}
+          onFocus={e => e.target.style.borderColor = C.accent}
+          onBlur={e => e.target.style.borderColor = C.border}
+        />
+      )}
+    </div>
+  );
+};
+
+const Dropdown = ({ label, hint, required, options, value, onChange, placeholder }) => (
+  <div style={{ marginBottom: 20 }}>
+    <label style={{
+      display: "block", fontFamily: "Unbounded", fontSize: 13,
+      fontWeight: 500, color: C.text, marginBottom: 6,
+    }}>
+      {label} {required && <span style={{ color: C.accent }}>*</span>}
+    </label>
+    {hint && <p style={{
+      fontFamily: "Inter", fontSize: 12, color: C.textDim,
+      margin: "0 0 8px", lineHeight: 1.4,
+    }}>{hint}</p>}
+    <select value={value || ""} onChange={e => onChange(e.target.value)}
+      style={{
+        width: "100%", padding: "12px 14px", fontFamily: "Inter",
+        fontSize: 14, color: value ? C.text : C.textMuted,
+        background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8,
+        outline: "none", cursor: "pointer", boxSizing: "border-box",
+        appearance: "none",
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "right 14px center",
+      }}
+    >
+      <option value="" disabled style={{ color: C.textMuted }}>{placeholder || "Выбери вариант"}</option>
+      {options.map(opt => (
+        <option key={opt} value={opt} style={{ background: C.surface, color: C.text }}>{opt}</option>
+      ))}
+    </select>
+  </div>
+);
+
+const FileUpload = ({ label, hint, required, fileName, onChange }) => {
+  const inputRef = useRef(null);
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <label style={{
+        display: "block", fontFamily: "Unbounded", fontSize: 13,
+        fontWeight: 500, color: C.text, marginBottom: 6,
+      }}>
+        {label} {required && <span style={{ color: C.accent }}>*</span>}
+      </label>
+      {hint && <p style={{
+        fontFamily: "Inter", fontSize: 12, color: C.textDim,
+        margin: "0 0 8px", lineHeight: 1.4,
+      }}>{hint}</p>}
+      <input ref={inputRef} type="file" accept="image/*" onChange={e => {
+        if (e.target.files[0]) onChange(e.target.files[0].name);
+      }} style={{ display: "none" }} />
+      <button type="button" onClick={() => inputRef.current?.click()}
+        style={{
+          width: "100%", padding: "16px", fontFamily: "Inter", fontSize: 13,
+          color: fileName ? C.text : C.textDim,
+          background: C.bg, border: `1px dashed ${fileName ? C.accent : C.border}`,
+          borderRadius: 8, cursor: "pointer", transition: "all 0.2s",
+          textAlign: "center",
+        }}
+      >
+        {fileName ? `📎 ${fileName}` : "Нажми, чтобы загрузить фото"}
+      </button>
+    </div>
+  );
+};
+
+const EnergySlider = ({ label, hint, required, value, onChange }) => {
+  const val = value || 5;
+  const pct = ((val - 1) / 9) * 100;
+  const getColor = (v) => {
+    const r = Math.round(40 + (255 - 40) * ((v - 1) / 9));
+    const g = Math.round(200 - 140 * ((v - 1) / 9));
+    const b = Math.round(100 - 100 * ((v - 1) / 9));
+    return `rgb(${r},${g},${b})`;
+  };
+  const color = getColor(val);
+  return (
+    <div style={{ marginBottom: 24 }}>
+      <label style={{
+        display: "block", fontFamily: "Unbounded", fontSize: 13,
+        fontWeight: 500, color: C.text, marginBottom: 6,
+      }}>
+        {label} {required && <span style={{ color: C.accent }}>*</span>}
+      </label>
+      {hint && <p style={{
+        fontFamily: "Inter", fontSize: 12, color: C.textDim,
+        margin: "0 0 12px", lineHeight: 1.4,
+      }}>{hint}</p>}
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        marginBottom: 8,
+      }}>
+        <span style={{ fontFamily: "Inter", fontSize: 11, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>Ambient</span>
+        <span style={{
+          fontFamily: "Unbounded", fontSize: 22, fontWeight: 800,
+          color, transition: "color 0.2s", minWidth: 36, textAlign: "center",
+        }}>{val}</span>
+        <span style={{ fontFamily: "Inter", fontSize: 11, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>Полный газ</span>
+      </div>
+      <div style={{ position: "relative", height: 36, display: "flex", alignItems: "center" }}>
+        <style>{`
+          input[type="range"].energy-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 3px; outline: none; cursor: pointer;
+            background: linear-gradient(to right, ${color} 0%, ${color} ${pct}%, ${C.border} ${pct}%, ${C.border} 100%); }
+          input[type="range"].energy-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%;
+            background: ${color}; border: 2px solid ${C.bg}; box-shadow: 0 0 8px ${color}44; cursor: pointer; transition: all 0.15s; }
+          input[type="range"].energy-slider::-webkit-slider-thumb:hover { transform: scale(1.2); box-shadow: 0 0 14px ${color}66; }
+          input[type="range"].energy-slider::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%;
+            background: ${color}; border: 2px solid ${C.bg}; box-shadow: 0 0 8px ${color}44; cursor: pointer; }
+        `}</style>
+        <input
+          type="range" min={1} max={10} step={1} value={val}
+          className="energy-slider"
+          onChange={e => onChange(Number(e.target.value))}
+          style={{ width: "100%" }}
+        />
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+        {[...Array(10)].map((_, i) => (
+          <span key={i} style={{
+            fontFamily: "Inter", fontSize: 9, color: i + 1 === val ? color : C.textMuted,
+            width: "10%", textAlign: "center", fontWeight: i + 1 === val ? 700 : 400,
+            transition: "all 0.2s",
+          }}>{i + 1}</span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Divider = ({ title }) => (
+  <div style={{ margin: "32px 0 20px", display: "flex", alignItems: "center", gap: 12 }}>
+    <div style={{ height: 1, flex: 1, background: C.border }} />
+    {title && <span style={{
+      fontFamily: "Unbounded", fontSize: 11, fontWeight: 600,
+      color: C.accent, letterSpacing: "0.1em",
+      textTransform: "uppercase", whiteSpace: "nowrap",
+    }}>{title}</span>}
+    <div style={{ height: 1, flex: 1, background: C.border }} />
+  </div>
+);
+
+// Elkino logo SVG as inline data
+const LOGO_SVG = `data:image/svg+xml,%3Csvg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='120' height='120' rx='60' fill='%230a3d0a'/%3E%3Cg transform='translate(60,60)'%3E%3Cline x1='0' y1='0' x2='-22' y2='-32' stroke='%2300c853' stroke-width='5' stroke-linecap='round'/%3E%3Cline x1='0' y1='0' x2='0' y2='-28' stroke='%2300c853' stroke-width='4' stroke-linecap='round'/%3E%3Cline x1='0' y1='0' x2='30' y2='0' stroke='%2300c853' stroke-width='5' stroke-linecap='round'/%3E%3Cline x1='0' y1='0' x2='18' y2='-20' stroke='%2300c853' stroke-width='4' stroke-linecap='round'/%3E%3Cline x1='0' y1='0' x2='-10' y2='-24' stroke='%2300c853' stroke-width='3.5' stroke-linecap='round'/%3E%3Cline x1='0' y1='0' x2='12' y2='28' stroke='%2300c853' stroke-width='5' stroke-linecap='round'/%3E%3Cline x1='0' y1='0' x2='-18' y2='14' stroke='%2300c853' stroke-width='4' stroke-linecap='round'/%3E%3Cline x1='0' y1='0' x2='-28' y2='-8' stroke='%2300c853' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='0' cy='0' r='4' fill='%2300c853'/%3E%3C/g%3E%3C/svg%3E`;
+
+const TelegramInput = ({ label, required, value, onChange }) => {
+  const handleChange = (e) => {
+    let v = e.target.value.replace(/[^a-zA-Z0-9_@]/g, "");
+    if (!v.startsWith("@")) v = "@" + v.replace(/@/g, "");
+    else v = "@" + v.slice(1).replace(/@/g, "");
+    onChange(v);
+  };
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <label style={{
+        display: "block", fontFamily: "Unbounded", fontSize: 13,
+        fontWeight: 500, color: C.text, marginBottom: 6,
+      }}>
+        {label} {required && <span style={{ color: C.accent }}>*</span>}
+      </label>
+      <input
+        type="text" value={value || "@"} onChange={handleChange}
+        placeholder="@username"
+        onFocus={e => { if (!e.target.value) onChange("@"); e.target.style.borderColor = C.accent; }}
+        onBlur={e => e.target.style.borderColor = C.border}
+        style={{
+          width: "100%", padding: "12px 14px", fontFamily: "Inter",
+          fontSize: 14, color: C.text, background: C.card,
+          border: `1px solid ${C.border}`, borderRadius: 8,
+          outline: "none", transition: "border-color 0.2s", boxSizing: "border-box",
+        }}
+      />
+    </div>
+  );
+};
+
+const AvatarUpload = ({ imageUrl, onChange }) => {
+  const inputRef = useRef(null);
+  const handleChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      onChange(url);
+    }
+  };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 28 }}>
+      <input ref={inputRef} type="file" accept="image/*" onChange={handleChange} style={{ display: "none" }} />
+      <button type="button" onClick={() => inputRef.current?.click()}
+        style={{
+          width: 120, height: 120, borderRadius: "50%", padding: 0,
+          border: `2px dashed ${imageUrl ? C.accent : C.border}`,
+          background: imageUrl ? "none" : C.card,
+          cursor: "pointer", overflow: "hidden",
+          transition: "all 0.3s",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}
+      >
+        {imageUrl ? (
+          <img src={imageUrl} alt="avatar" style={{
+            width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%",
+          }} />
+        ) : (
+          <img src={LOGO_SVG} alt="upload" style={{
+            width: "100%", height: "100%", borderRadius: "50%", opacity: 0.35,
+            filter: "grayscale(100%)",
+          }} />
+        )}
+      </button>
+      <p style={{
+        fontFamily: "Inter", fontSize: 12, color: C.textMuted,
+        marginTop: 8, textAlign: "center",
+      }}>{imageUrl ? "Нажми, чтобы заменить" : "Загрузи своё фото"}</p>
+    </div>
+  );
+};
+
+const PhoneInput = ({ label, hint, required, value, onChange }) => {
+  const getDigits = (v) => (v || "").replace(/\D/g, "").replace(/^[78]/, "");
+  const formatPhone = (digits) => {
+    let f = "+7";
+    if (digits.length > 0) f += " (" + digits.substring(0, 3);
+    if (digits.length >= 3) f += ") " + digits.substring(3, 6);
+    if (digits.length >= 6) f += "-" + digits.substring(6, 8);
+    if (digits.length >= 8) f += "-" + digits.substring(8, 10);
+    return f;
+  };
+  const prevDigitsRef = useRef("");
+  const handleChange = (e) => {
+    const raw = e.target.value;
+    if (raw.length <= 2) { onChange("+7"); prevDigitsRef.current = ""; return; }
+    let digits = getDigits(raw).substring(0, 10);
+    // If digit count didn't change but string got shorter = user deleted a formatting char → drop one more digit
+    if (digits.length === prevDigitsRef.current.length && raw.length < (value || "").length && digits.length > 0) {
+      digits = digits.slice(0, -1);
+    }
+    prevDigitsRef.current = digits;
+    onChange(formatPhone(digits));
+  };
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <label style={{
+        display: "block", fontFamily: "Unbounded", fontSize: 13,
+        fontWeight: 500, color: C.text, marginBottom: 6,
+      }}>
+        {label} {required && <span style={{ color: C.accent }}>*</span>}
+      </label>
+      {hint && <p style={{
+        fontFamily: "Inter", fontSize: 12, color: C.textDim,
+        margin: "0 0 8px", lineHeight: 1.4,
+      }}>{hint}</p>}
+      <input
+        type="tel" value={value || "+7"} onChange={handleChange}
+        placeholder="+7 (999) 123-45-67"
+        onFocus={e => { if (!e.target.value) onChange("+7"); e.target.style.borderColor = C.accent; }}
+        onBlur={e => e.target.style.borderColor = C.border}
+        style={{
+          width: "100%", padding: "12px 14px", fontFamily: "Inter",
+          fontSize: 14, color: C.text, background: C.card,
+          border: `1px solid ${C.border}`, borderRadius: 8,
+          outline: "none", transition: "border-color 0.2s", boxSizing: "border-box",
+        }}
+      />
+    </div>
+  );
+};
+
+const pluralize = (n, one, two, five) => {
+  const abs = Math.abs(n) % 100;
+  const last = abs % 10;
+  if (abs > 10 && abs < 20) return five;
+  if (last > 1 && last < 5) return two;
+  if (last === 1) return one;
+  return five;
+};
+
+const Countdown = () => {
+  const deadline = new Date("2026-05-15T23:59:59").getTime();
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const diff = Math.max(0, deadline - now);
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+
+  const blocks = [
+    { val: days, label: pluralize(days, "день", "дня", "дней") },
+    { val: hours, label: pluralize(hours, "час", "часа", "часов") },
+    { val: mins, label: pluralize(mins, "минута", "минуты", "минут") },
+    { val: secs, label: pluralize(secs, "секунда", "секунды", "секунд") },
+  ];
+
+  if (diff === 0) return (
+    <p style={{ fontFamily: "Unbounded", fontSize: 14, color: C.accent, textAlign: "center" }}>
+      Приём заявок завершён
+    </p>
+  );
+
+  return (
+    <div style={{ marginBottom: 36 }}>
+      <p style={{
+        fontFamily: "Inter", fontSize: 13, color: C.accent,
+        textAlign: "center", margin: "0 0 14px", fontWeight: 600,
+      }}>Дедлайн подачи заявок: 15 мая 2026</p>
+      <div style={{
+        display: "flex", justifyContent: "center", gap: 10,
+      }}>
+        {blocks.map(b => (
+          <div key={b.label} style={{
+            background: C.surface, border: `1px solid ${C.border}`,
+            borderRadius: 10, padding: "10px 6px", minWidth: 62, textAlign: "center",
+          }}>
+            <div style={{
+              fontFamily: "Unbounded", fontSize: 22, fontWeight: 700,
+              color: C.white, lineHeight: 1.2,
+            }}>{String(b.val).padStart(2, "0")}</div>
+            <div style={{
+              fontFamily: "Inter", fontSize: 10, color: C.textMuted,
+              marginTop: 2, textTransform: "uppercase", letterSpacing: "0.05em",
+            }}>{b.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const SocialFooter = ({ style: containerStyle }) => (
+  <div style={{
+    display: "flex", alignItems: "center", justifyContent: "center", gap: 12, flexWrap: "wrap",
+    ...containerStyle,
+  }}>
+    {[
+      { href: "https://t.me/elkino_gang", label: "Telegram", icon: (
+        <svg style={{ pointerEvents: "none" }} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21.2 4.6L2.4 11.4c-.7.3-.7.8 0 1l4.7 1.5 1.8 5.8c.2.6.8.6 1.1.3l2.6-2.1 5.1 3.8c.6.4 1.1.2 1.2-.5L22 5.6c.2-.9-.4-1.3-1-.8z"/>
+          <path d="M8.9 13.3l9.2-7.8"/>
+        </svg>
+      )},
+      { href: "https://www.instagram.com/elkino_gang/", label: "Instagram", icon: (
+        <svg style={{ pointerEvents: "none" }} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5"/>
+          <circle cx="12" cy="12" r="5"/>
+          <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/>
+        </svg>
+      )},
+      { href: "https://www.youtube.com/@ElkinoGang", label: "YouTube", icon: (
+        <svg style={{ pointerEvents: "none" }} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="4"/>
+          <polygon points="10,8.5 16,12 10,15.5" fill="currentColor" stroke="none"/>
+        </svg>
+      )},
+      { href: "https://soundcloud.com/elkino_gang", label: "SoundCloud", icon: (
+        <svg style={{ pointerEvents: "none" }} width="22" height="20" viewBox="0 0 24 20" fill="currentColor">
+          <path d="M3 14c0-1 .2-2 .5-2.5.1-.2.3-.2.5 0 .3.5.5 1.5.5 2.5s-.2 2-.5 2.5c-.2.2-.4.2-.5 0C3.2 16 3 15 3 14zm3-2c0-1.5.2-3 .5-3.5.1-.2.3-.2.5 0 .3.5.5 2 .5 3.5s-.2 3-.5 3.5c-.2.2-.4.2-.5 0C6.2 15 6 13.5 6 12zm3-1c0-2 .2-4 .5-4.5.1-.2.3-.2.5 0 .3.5.5 2.5.5 4.5s-.2 4-.5 4.5c-.2.2-.4.2-.5 0C9.2 15 9 13 9 11zm3 0c0-2.5.2-5 .5-5.5.1-.2.3-.2.5 0 .3.5.5 3 .5 5.5s-.2 5-.5 5.5c-.2.2-.4.2-.5 0-.3-.5-.5-3-.5-5.5zm3.5-1c1.3 0 2.5.5 3.3 1.3.5.5.8 1 1 1.7.1.3.2.7.2 1v2c0 1.7-1.3 3-3 3h-5c-.3 0-.5-.2-.5-.5V7.5c0-.3.2-.5.5-.5.8 0 2-.3 3-.3.3 0 .5 0 .5.3z"/>
+        </svg>
+      )},
+      { href: "https://vk.com/club237040128", label: "VK", icon: (
+        <svg style={{ pointerEvents: "none" }} width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M1.5 6.5C1.5 6.5 1.8 6 2.5 6C3.2 6 3.8 6.3 4.2 7.2C4.6 8.1 5.8 11.5 6.5 12.5C7.2 13.5 7.8 13.8 8.3 13.5C8.8 13.2 8.8 11.2 8.7 10.3C8.6 9.4 8.3 9 8.3 9C8.3 9 8.7 8.8 9.2 8.8C9.7 8.8 10.5 8.9 10.5 9.8C10.5 10.7 10.4 12.5 10.4 12.5C10.4 12.5 10.5 13 10.9 12.6C11.5 12 12.5 10 13.2 8.5C13.5 7.9 13.8 7.5 14.3 7.5H16.2C16.8 7.5 17 7.8 16.8 8.3C16.3 9.5 14.8 12 14.8 12C14.8 12 14.5 12.5 14.8 12.9C15.1 13.3 16 14 16.5 14.7C17 15.4 17.2 15.8 16.9 16.2C16.6 16.5 16.2 16.5 15.8 16.5H14.2C14.2 16.5 13.8 16.5 13.5 16.2C13.2 15.9 12.8 15.3 12.3 14.8C11.8 14.3 11.5 14.1 11.3 14.2C11.1 14.3 11.1 14.9 11.1 15.3C11.1 15.7 10.9 16 10.5 16C9.2 16.1 7.5 16 5.8 14C4 11.8 2.5 7.5 2.5 7.5C2.5 7.5 2.3 7 2.5 6.8C2.7 6.5 3 6.5 3 6.5"/>
+        </svg>
+      )},
+    ].map(({ href, label, icon }) => (
+      <a key={label} href={href} target="_blank" rel="noopener noreferrer" title={label}
+        style={{
+          width: 44, height: 44, borderRadius: 12,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          color: C.textMuted, background: C.surface,
+          border: `1px solid ${C.border}`,
+          textDecoration: "none", transition: "all 0.2s",
+        }}
+        onMouseEnter={e => { e.currentTarget.style.color = C.text; e.currentTarget.style.borderColor = C.borderHover; }}
+        onMouseLeave={e => { e.currentTarget.style.color = C.textMuted; e.currentTarget.style.borderColor = C.border; }}
+      >{icon}</a>
+    ))}
+
+    <a href="https://t.me/elkino_gang_bot" target="_blank" rel="noopener noreferrer"
+      style={{
+        height: 44, padding: "0 20px", borderRadius: 12,
+        display: "flex", alignItems: "center",
+        fontFamily: "Inter", fontSize: 13, fontWeight: 500,
+        color: C.textMuted, background: C.surface,
+        border: `1px solid ${C.border}`,
+        textDecoration: "none", transition: "all 0.3s",
+        marginLeft: 4,
+      }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = C.accent; e.currentTarget.style.color = C.text; e.currentTarget.style.boxShadow = `0 4px 20px ${C.accentGlow}`; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.textMuted; e.currentTarget.style.boxShadow = "none"; }}
+    >Обратная связь</a>
+    <div style={{ width: "100%", marginTop: 24, textAlign: "center" }}>
+      <span style={{ fontFamily: "Inter", fontSize: 11, color: C.textMuted }}>© 2026 Elkino Gang</span>
+    </div>
+  </div>
+);
+
+// ─── LANDING ───
+
+const Landing = ({ onSelect, expired }) => {
+  const [hovered, setHovered] = useState(null);
+  const cards = [
+    {
+      id: "artist", icon: "🎧", title: "Артистам",
+      sub: "DJ-сет · вокал · живые инструменты · перформанс",
+      desc: "Заполни заявку на выступление — мы свяжемся и обсудим детали",
+    },
+    {
+      id: "activity", icon: "⚡", title: "Активностям",
+      sub: "мастер-класс · маркет · спорт · wellness · еда",
+      desc: "Расскажи о своей активности — куратор соберёт программу",
+    },
+  ];
+
+  return (
+    <div style={{
+      minHeight: "100vh", display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center", padding: "40px 20px",
+      background: `radial-gradient(ellipse 80% 60% at 50% 40%, rgba(59,212,88,0.06) 0%, transparent 70%), radial-gradient(circle at 20% 80%, rgba(59,212,88,0.03) 0%, transparent 40%)`,
+    }}>
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, opacity: 0.04, pointerEvents: "none",
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+      }} />
+      <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: 640 }}>
+        <div style={{
+          fontFamily: "Unbounded", fontSize: 13, fontWeight: 600,
+          color: C.accent, letterSpacing: "0.2em", marginBottom: 12,
+        }}>✳ ELKINO GANG</div>
+        <h1 style={{
+          fontFamily: "Unbounded", fontSize: "clamp(28px, 6vw, 48px)",
+          fontWeight: 900, color: C.white, margin: "0 0 8px",
+          lineHeight: 1.1, letterSpacing: "-0.02em",
+        }}>СЕЗОН 9</h1>
+        <p style={{
+          fontFamily: "Inter", fontSize: 16, color: C.textDim,
+          margin: "0 0 12px", lineHeight: 1.5,
+        }}>Подай заявку на участие в фестивале</p>
+        <p style={{
+          fontFamily: "Unbounded", fontSize: 11, color: C.textMuted,
+          margin: "0 0 24px", letterSpacing: "0.15em", textTransform: "uppercase",
+        }}>Все дороги ведут в Елкино</p>
+
+        <Countdown />
+
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+          gap: 16,
+        }}>
+          {cards.map(c => (
+            <button key={c.id} onClick={() => !expired && onSelect(c.id)}
+              onMouseEnter={() => !expired && setHovered(c.id)}
+              onMouseLeave={() => setHovered(null)}
+              style={{
+                padding: "32px 24px 24px",
+                background: hovered === c.id ? C.surfaceHover : C.surface,
+                border: `1px solid ${hovered === c.id ? C.borderHover : C.border}`,
+                borderRadius: 16, cursor: expired ? "not-allowed" : "pointer", textAlign: "left",
+                transition: "all 0.3s ease",
+                transform: hovered === c.id ? "translateY(-4px)" : "none",
+                boxShadow: hovered === c.id ? `0 12px 40px ${C.accentDim}` : "none",
+                position: "relative", overflow: "hidden",
+                opacity: expired ? 0.4 : 1,
+              }}
+            >
+              {hovered === c.id && <div style={{
+                position: "absolute", top: 0, left: 0, right: 0, height: 2,
+                background: `linear-gradient(90deg, transparent, ${C.accent}, transparent)`,
+              }} />}
+              <div style={{ fontSize: 36, marginBottom: 16 }}>{c.icon}</div>
+              <h2 style={{
+                fontFamily: "Unbounded", fontSize: 22, fontWeight: 700,
+                color: C.white, margin: "0 0 8px",
+              }}>{c.title}</h2>
+              <p style={{
+                fontFamily: "Inter", fontSize: 13, color: C.accent,
+                margin: "0 0 12px", fontWeight: 500,
+              }}>{c.sub}</p>
+              <p style={{
+                fontFamily: "Inter", fontSize: 14, color: C.textDim,
+                margin: 0, lineHeight: 1.5,
+              }}>{c.desc}</p>
+            </button>
+          ))}
+        </div>
+
+        <SocialFooter style={{ marginTop: 48 }} />
+      </div>
+    </div>
+  );
+};
+
+// ─── STEP INDICATOR ───
+
+const StepIndicator = ({ current, total, labels }) => (
+  <div style={{ marginBottom: 32 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 10 }}>
+      {[...Array(total)].map((_, i) => (
+        <div key={i} style={{
+          flex: 1, height: 3, borderRadius: 2,
+          background: i <= current ? C.accent : C.border,
+          transition: "background 0.3s",
+        }} />
+      ))}
+    </div>
+    <p style={{
+      fontFamily: "Inter", fontSize: 12, color: C.textDim, margin: 0,
+    }}>Шаг {current + 1} из {total} — {labels[current]}</p>
+  </div>
+);
+
+const ReviewRow = ({ label, value }) => {
+  if (!value || (typeof value === "string" && value.trim() === "")) return null;
+  const display = Array.isArray(value) ? value.join(", ") : value;
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "6px 0", borderBottom: `1px solid ${C.border}` }}>
+      <span style={{ fontFamily: "Inter", fontSize: 12, color: C.textMuted, minWidth: 100 }}>{label}</span>
+      <span style={{ fontFamily: "Inter", fontSize: 12, color: C.text, textAlign: "right", wordBreak: "break-word" }}>{display}</span>
+    </div>
+  );
+};
+
+// ─── ARTIST FORM ───
+
+const ArtistForm = ({ onBack, onSubmit }) => {
+  const [d, setD] = useState({});
+  const [step, setStep] = useState(0);
+  const [error, setError] = useState("");
+  const s = (k, v) => { setD(p => ({ ...p, [k]: v })); if (error) setError(''); };
+  const topRef = useRef(null);
+  useEffect(() => { topRef.current?.scrollIntoView({ behavior: "smooth" }); }, [step]);
+
+  const timeSlots = [
+    "15:00 – 17:00", "17:00 – 19:00", "19:00 – 21:00",
+    "21:00 – 23:00", "23:00 – 01:00", "01:00 – 03:00",
+  ];
+  const stepLabels = ["О тебе", "Твоя музыка", "Детали выступления", "Финал"];
+  const isEmpty = (v) => !v || (typeof v === "string" && (v.trim() === "" || v === "+7" || v === "@"));
+  const isPhoneComplete = (v) => (v || "").replace(/\D/g, "").length >= 11;
+
+  const validateStep = () => {
+    const rules = [
+      { name: "Имя и фамилия", telegram: "Telegram", project: "Название проекта", bio: "О себе как артисте" },
+      { format: "Формат выступления", genre: "Жанр / стиль" },
+      { duration: "Хронометраж", date: "Желаемая дата", time: "Желаемое время", gear: "Оборудование" },
+      { agree: "Согласие с правилами" },
+    ];
+    const r = rules[step];
+    for (const [k, label] of Object.entries(r)) {
+      const val = d[k];
+      if (Array.isArray(val) ? val.length === 0 : isEmpty(val)) {
+        setError(`Заполни поле «${label}»`);
+        return false;
+      }
+    }
+    // Phone length check on step 0
+    if (step === 0 && !isPhoneComplete(d.phone)) {
+      setError("Введи полный номер телефона");
+      return false;
+    }
+    return true;
+  };
+
+  const next = () => { if (validateStep()) { setStep(s => s + 1); setError(""); } };
+  const back = () => { setStep(s => s - 1); setError(""); };
+  const handleSubmit = () => { if (validateStep()) onSubmit(d); };
+
+  const navBtn = (label, onClick, primary) => (
+    <button onClick={onClick} style={{
+      flex: primary ? 2 : 1, padding: "14px 0",
+      fontFamily: "Unbounded", fontSize: 14, fontWeight: primary ? 700 : 500,
+      color: primary ? C.bg : C.textDim,
+      background: primary ? C.accent : "none",
+      border: primary ? "none" : `1px solid ${C.border}`,
+      borderRadius: 10, cursor: "pointer", transition: "all 0.2s",
+      boxShadow: primary ? `0 4px 20px ${C.accentGlow}` : "none",
+    }}
+      onMouseEnter={e => { if (primary) e.target.style.transform = "translateY(-2px)"; else e.target.style.borderColor = C.borderHover; }}
+      onMouseLeave={e => { e.target.style.transform = "none"; e.target.style.borderColor = primary ? "none" : C.border; }}
+    >{label}</button>
+  );
+
+  const [showExit, setShowExit] = useState(false);
+
+  const handleBack = () => {
+    if (step === 0) {
+      const hasData = Object.keys(d).some(k => {
+        const v = d[k];
+        if (!v) return false;
+        if (v === "+7" || v === "@") return false;
+        if (Array.isArray(v) && v.length === 0) return false;
+        if (typeof v === "string" && v.trim() === "") return false;
+        return true;
+      });
+      if (hasData) { setShowExit(true); return; }
+      onBack();
+    } else back();
+  };
+
+  return (
+    <div ref={topRef} style={{ maxWidth: 600, margin: "0 auto", padding: "40px 20px 80px" }}>
+      {/* Exit confirmation */}
+      {showExit && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 100,
+          background: "rgba(10,31,4,0.85)", display: "flex",
+          alignItems: "center", justifyContent: "center", padding: 20,
+        }}>
+          <div style={{
+            background: C.surface, border: `1px solid ${C.border}`,
+            borderRadius: 16, padding: "28px 24px", maxWidth: 340, textAlign: "center",
+          }}>
+            <p style={{ fontFamily: "Unbounded", fontSize: 16, fontWeight: 700, color: C.white, margin: "0 0 8px" }}>Выйти из формы?</p>
+            <p style={{ fontFamily: "Inter", fontSize: 14, color: C.textDim, margin: "0 0 24px", lineHeight: 1.5 }}>Введённые данные будут потеряны</p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setShowExit(false)} style={{
+                flex: 1, padding: "12px 0", fontFamily: "Inter", fontSize: 14, fontWeight: 600,
+                color: C.text, background: "none", border: `1px solid ${C.border}`,
+                borderRadius: 10, cursor: "pointer",
+              }}>Остаться</button>
+              <button onClick={onBack} style={{
+                flex: 1, padding: "12px 0", fontFamily: "Inter", fontSize: 14, fontWeight: 600,
+                color: C.bg, background: C.accent, border: "none",
+                borderRadius: 10, cursor: "pointer",
+              }}>Выйти</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <button onClick={handleBack} style={{
+        fontFamily: "Inter", fontSize: 14, color: C.textDim,
+        background: "none", border: "none", cursor: "pointer",
+        marginBottom: 32, padding: 0, display: "block",
+      }}>← {step === 0 ? "назад" : "предыдущий шаг"}</button>
+
+      {step === 0 ? <>
+        <Badge>Форма для артистов</Badge>
+        <h1 style={{
+          fontFamily: "Unbounded", fontSize: 28, fontWeight: 800,
+          color: C.white, margin: "16px 0 8px",
+        }}>Заявка на выступление</h1>
+        <p style={{
+          fontFamily: "Inter", fontSize: 13, color: C.accent,
+          margin: "0 0 24px", fontWeight: 600,
+        }}>Дедлайн подачи заявок: 15 мая 2026</p>
+      </> : (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+          <Badge>Артисты</Badge>
+          <span style={{ fontFamily: "Inter", fontSize: 13, color: C.textDim }}>{stepLabels[step]}</span>
+        </div>
+      )}
+
+      <StepIndicator current={step} total={4} labels={stepLabels} />
+
+      {step === 0 && <div style={{ animation: 'fadeIn 0.35s ease' }}>
+        <AvatarUpload imageUrl={d.avatar || ""} onChange={v => s("avatar", v)} />
+        <Input label="Имя и фамилия" required value={d.name || ""} onChange={v => s("name", v)} placeholder="Как тебя зовут?" />
+        <PhoneInput label="Номер телефона" required value={d.phone || ""} onChange={v => s("phone", v)} />
+        <TelegramInput label="Telegram" required value={d.telegram || ""} onChange={v => s("telegram", v)} />
+        <Input label="Название проекта / сценическое имя" required value={d.project || ""} onChange={v => s("project", v)} placeholder="Как тебя знает аудитория" />
+        <TextArea label="О себе как артисте" hint="Жанр музыки, отличительные черты, что хочешь рассказать аудитории — это поможет в составлении анонса" required value={d.bio || ""} onChange={v => s("bio", v)} maxLength={500} />
+        <Divider title="Соцсети" />
+        <Input label="Instagram" value={d.instagram || ""} onChange={v => s("instagram", v)} placeholder="https://instagram.com/..." />
+        <Input label="SoundCloud" value={d.soundcloud || ""} onChange={v => s("soundcloud", v)} placeholder="https://soundcloud.com/..." />
+        <p style={{ fontFamily: "Inter", fontSize: 12, color: C.textDim, margin: "0 0 10px" }}>Другие соцсети</p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+          {[
+            { key: "vk", label: "VK", ph: "vk.com/..." },
+            { key: "youtube", label: "YouTube", ph: "youtube.com/..." },
+            { key: "tgChannel", label: "TG-канал", ph: "t.me/..." },
+            { key: "spotify", label: "Spotify", ph: "open.spotify.com/..." },
+          ].map(f => (
+            <div key={f.key}>
+              <label style={{ fontFamily: "Inter", fontSize: 11, color: C.textMuted, display: "block", marginBottom: 4 }}>{f.label}</label>
+              <input value={d[f.key] || ""} onChange={e => s(f.key, e.target.value)} placeholder={f.ph}
+                style={{
+                  width: "100%", padding: "9px 12px", fontFamily: "Inter", fontSize: 13,
+                  color: C.text, background: C.bg, border: `1px solid ${C.border}`,
+                  borderRadius: 8, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s",
+                }}
+                onFocus={e => e.target.style.borderColor = C.accent}
+                onBlur={e => e.target.style.borderColor = C.border}
+              />
+            </div>
+          ))}
+        </div>
+      </div>}
+
+      {step === 1 && <div style={{ animation: 'fadeIn 0.35s ease' }}>
+        <CheckGroupWithOther label="Формат выступления" required
+          options={["DJ-сет", "Вокал", "Живые инструменты", "Открытый микрофон", "Караоке", "Другое"]}
+          value={d.format || []} onChange={v => s("format", v)}
+          otherValue={d.formatOther || ""} onOtherChange={v => s("formatOther", v)} />
+        <CheckGroupWithOther label="Жанр / стиль" hint="Можно выбрать несколько" required
+          options={["Techno", "House", "Electronic", "Pop", "Rock", "Hip-Hop", "Lo-fi", "Chill", "Ambient", "Dubstep", "Drum & Bass", "Другое"]}
+          value={d.genre || []} onChange={v => s("genre", v)}
+          otherValue={d.genreOther || ""} onOtherChange={v => s("genreOther", v)} />
+        <EnergySlider label="Энергия выступления" hint="Насколько жёстко планируешь играть?" required
+          value={d.energy || 5} onChange={v => s("energy", v)} />
+        <Input label="Ссылка на микс / запись" hint="SoundCloud, YouTube, Google Drive — это повысит шансы заявки. Также мы сможем выложить твой сет и крутить его на Elkino Radio" value={d.mix || ""} onChange={v => s("mix", v)} placeholder="https://..." />
+        <Divider />
+        <RadioGroup label="Опыт выступлений"
+          options={["Это мой первый раз — хочу попробовать!", "Выступал на Elkino", "Выступал в других местах"]}
+          value={d.experience || ""} onChange={v => s("experience", v)} />
+        <RadioGroup label="Работа с аудиторией"
+          options={["Люблю вовлекать аудиторию", "Играю сет, без интерактива"]}
+          value={d.audience || ""} onChange={v => s("audience", v)} />
+      </div>}
+
+      {step === 2 && <div style={{ animation: 'fadeIn 0.35s ease' }}>
+        <p style={{
+          fontFamily: "Inter", fontSize: 12, color: C.textDim, fontStyle: "italic",
+          margin: "0 0 20px", lineHeight: 1.5, padding: "10px 14px",
+          background: C.surface, borderRadius: 8, border: `1px solid ${C.border}`,
+        }}>Тайминги и расписание могут корректироваться организатором. Мы постараемся учесть твои пожелания, но финальное время выступления подтвердим отдельно.</p>
+        <RadioGroup label="Хронометраж" required
+          options={["15 мин", "30 мин", "60 мин", "90 мин"]}
+          value={d.duration || ""} onChange={v => s("duration", v)} />
+        <RadioGroup label="Желаемая дата" required
+          options={["Пятница, 29 мая", "Суббота, 30 мая", "Оба дня"]}
+          value={d.date || ""} onChange={v => s("date", v)} />
+        <Dropdown label="Желаемое время выступления" required
+          options={timeSlots} value={d.time || ""}
+          onChange={v => s("time", v)} placeholder="Выбери временной слот" />
+        <Divider title="Оборудование" />
+        <RadioGroup label="Приедешь со своим?" required
+          options={["Да, приеду со своим", "Нужен ваш пульт"]}
+          value={d.gear || ""} onChange={v => s("gear", v)} />
+        <CheckGroupWithOther label="Что нужно от нас?" hint="Выбери, что понадобится"
+          options={["Микрофон ×1", "Микрофон ×2", "Диджейский пульт", "Ноутбук", "Другое"]}
+          value={d.equipment || []} onChange={v => s("equipment", v)}
+          otherValue={d.equipmentOther || ""} onOtherChange={v => s("equipmentOther", v)} />
+      </div>}
+
+      {step === 3 && <div style={{ animation: 'fadeIn 0.35s ease' }}>
+        <div style={{
+          background: C.surface, borderRadius: 12, border: `1px solid ${C.border}`,
+          padding: "16px 18px", marginBottom: 24,
+        }}>
+          <p style={{ fontFamily: "Unbounded", fontSize: 12, color: C.accent, margin: "0 0 12px", letterSpacing: "0.05em" }}>Проверь заявку</p>
+          <ReviewRow label="Имя" value={d.name} />
+          <ReviewRow label="Проект" value={d.project} />
+          <ReviewRow label="Формат" value={d.format} />
+          <ReviewRow label="Жанр" value={d.genre} />
+          <ReviewRow label="Энергия" value={d.energy ? `${d.energy} / 10` : null} />
+          <ReviewRow label="Хронометраж" value={d.duration} />
+          <ReviewRow label="Дата" value={d.date} />
+          <ReviewRow label="Время" value={d.time} />
+          <ReviewRow label="Оборудование" value={d.gear} />
+          <p style={{ fontFamily: "Inter", fontSize: 11, color: C.textMuted, margin: "10px 0 0", lineHeight: 1.4 }}>Если что-то не так — вернись на нужный шаг через кнопку «← предыдущий шаг»</p>
+        </div>
+
+        <FileUpload label="Доп материалы для анонса" hint="Фото, лого, обложка — формат 9×16 или 1080×1920"
+          fileName={d.photo || ""} onChange={v => s("photo", v)} />
+        <TextArea label="Свободное поле" hint="Дай знать, если хочешь сообщить ещё что-то" value={d.comments || ""} onChange={v => s("comments", v)} maxLength={500} />
+
+        <div style={{ marginBottom: 20 }}>
+          <label style={{
+            display: "flex", alignItems: "flex-start", gap: 12, cursor: "pointer",
+            fontFamily: "Inter", fontSize: 13, color: C.text, lineHeight: 1.5,
+          }} onClick={() => s("agree", !d.agree)}>
+            <div style={{
+              width: 22, height: 22, minWidth: 22, borderRadius: 6, marginTop: 1,
+              border: `2px solid ${d.agree ? C.accent : error && !d.agree ? "#ff5252" : C.border}`,
+              background: d.agree ? C.accent : "none",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              transition: "all 0.2s",
+            }}>
+              {d.agree && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.bg} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7"/></svg>}
+            </div>
+            <span>Я согласен с правилами участия в фестивале <span style={{ color: C.accent }}>*</span></span>
+          </label>
+        </div>
+      </div>}
+
+      {error && <p style={{
+        fontFamily: "Inter", fontSize: 13, color: "#ff5252",
+        margin: "0 0 12px", textAlign: "center",
+      }}>{error}</p>}
+
+      <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+        {step > 0 && navBtn("Назад", back, false)}
+        {step < 3 ? navBtn("Далее", next, true) : navBtn("Отправить заявку", handleSubmit, true)}
+      </div>
+
+      <SocialFooter style={{ marginTop: 48, paddingBottom: 20 }} />
+    </div>
+  );
+};
+
+// ─── ACTIVITY FORM ───
+
+const ActivityForm = ({ onBack, onSubmit }) => {
+  const [d, setD] = useState({});
+  const [step, setStep] = useState(0);
+  const [error, setError] = useState("");
+  const [showExit, setShowExit] = useState(false);
+  const s = (k, v) => { setD(p => ({ ...p, [k]: v })); if (error) setError(''); };
+  const topRef = useRef(null);
+  useEffect(() => { topRef.current?.scrollIntoView({ behavior: "smooth" }); }, [step]);
+
+  const timeSlots = [
+    "10:00 – 12:00", "12:00 – 14:00", "14:00 – 16:00",
+    "16:00 – 18:00", "18:00 – 20:00", "20:00 – 22:00", "Весь день",
+  ];
+  const stepLabels = ["О тебе", "Твоя активность", "Детали", "Финал"];
+  const isEmpty = (v) => !v || (typeof v === "string" && (v.trim() === "" || v === "+7" || v === "@"));
+  const isPhoneComplete = (v) => (v || "").replace(/\D/g, "").length >= 11;
+
+  const validateStep = () => {
+    const rules = [
+      { name: "Имя и фамилия", telegram: "Telegram", bio: "О себе как организаторе" },
+      { title: "Название активности", description: "Описание активности", whyElkino: "Почему подходит для Elkino" },
+      { duration: "Длительность", date: "Желаемая дата", time: "Желаемое время", capacity: "Макс. участников", autonomous: "Работает без ведущего" },
+      { needs: "Что нужно от нас", agree: "Согласие с правилами" },
+    ];
+    const arrayRules = [
+      {},
+      { type: "Тип активности" },
+      {},
+      {},
+    ];
+    const r = rules[step];
+    for (const [k, label] of Object.entries(r)) {
+      const val = d[k];
+      if (Array.isArray(val) ? val.length === 0 : isEmpty(val)) {
+        setError(`Заполни поле «${label}»`);
+        return false;
+      }
+    }
+    const ar = arrayRules[step];
+    for (const [k, label] of Object.entries(ar)) {
+      if (!d[k] || d[k].length === 0) { setError(`Заполни поле «${label}»`); return false; }
+    }
+    if (step === 0 && !isPhoneComplete(d.phone)) {
+      setError("Введи полный номер телефона");
+      return false;
+    }
+    return true;
+  };
+
+  const next = () => { if (validateStep()) { setStep(s => s + 1); setError(""); } };
+  const back = () => { setStep(s => s - 1); setError(""); };
+  const handleSubmit = () => { if (validateStep()) onSubmit(d); };
+
+  const handleBack = () => {
+    if (step === 0) {
+      const hasData = Object.keys(d).some(k => {
+        const v = d[k];
+        if (!v) return false;
+        if (v === "+7" || v === "@") return false;
+        if (Array.isArray(v) && v.length === 0) return false;
+        if (typeof v === "string" && v.trim() === "") return false;
+        return true;
+      });
+      if (hasData) { setShowExit(true); return; }
+      onBack();
+    } else back();
+  };
+
+  const navBtn = (label, onClick, primary) => (
+    <button onClick={onClick} style={{
+      flex: primary ? 2 : 1, padding: "14px 0",
+      fontFamily: "Unbounded", fontSize: 14, fontWeight: primary ? 700 : 500,
+      color: primary ? C.bg : C.textDim,
+      background: primary ? C.accent : "none",
+      border: primary ? "none" : `1px solid ${C.border}`,
+      borderRadius: 10, cursor: "pointer", transition: "all 0.2s",
+      boxShadow: primary ? `0 4px 20px ${C.accentGlow}` : "none",
+    }}
+      onMouseEnter={e => { if (primary) e.target.style.transform = "translateY(-2px)"; else e.target.style.borderColor = C.borderHover; }}
+      onMouseLeave={e => { e.target.style.transform = "none"; e.target.style.borderColor = primary ? "none" : C.border; }}
+    >{label}</button>
+  );
+
+  return (
+    <div ref={topRef} style={{ maxWidth: 600, margin: "0 auto", padding: "40px 20px 80px" }}>
+      {showExit && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 100,
+          background: "rgba(10,31,4,0.85)", display: "flex",
+          alignItems: "center", justifyContent: "center", padding: 20,
+        }}>
+          <div style={{
+            background: C.surface, border: `1px solid ${C.border}`,
+            borderRadius: 16, padding: "28px 24px", maxWidth: 340, textAlign: "center",
+          }}>
+            <p style={{ fontFamily: "Unbounded", fontSize: 16, fontWeight: 700, color: C.white, margin: "0 0 8px" }}>Выйти из формы?</p>
+            <p style={{ fontFamily: "Inter", fontSize: 14, color: C.textDim, margin: "0 0 24px", lineHeight: 1.5 }}>Введённые данные будут потеряны</p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setShowExit(false)} style={{
+                flex: 1, padding: "12px 0", fontFamily: "Inter", fontSize: 14, fontWeight: 600,
+                color: C.text, background: "none", border: `1px solid ${C.border}`,
+                borderRadius: 10, cursor: "pointer",
+              }}>Остаться</button>
+              <button onClick={onBack} style={{
+                flex: 1, padding: "12px 0", fontFamily: "Inter", fontSize: 14, fontWeight: 600,
+                color: C.bg, background: C.accent, border: "none",
+                borderRadius: 10, cursor: "pointer",
+              }}>Выйти</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <button onClick={handleBack} style={{
+        fontFamily: "Inter", fontSize: 14, color: C.textDim,
+        background: "none", border: "none", cursor: "pointer",
+        marginBottom: 32, padding: 0, display: "block",
+      }}>← {step === 0 ? "назад" : "предыдущий шаг"}</button>
+
+      {step === 0 ? <>
+        <Badge>Форма для активностей</Badge>
+        <h1 style={{
+          fontFamily: "Unbounded", fontSize: 28, fontWeight: 800,
+          color: C.white, margin: "16px 0 8px",
+        }}>Заявка на активность</h1>
+        <p style={{
+          fontFamily: "Inter", fontSize: 14, color: C.textDim,
+          margin: "0 0 6px", lineHeight: 1.5,
+        }}>Мастер-класс, маркет, массаж, стенд, тату, лекция, стрижка и тд</p>
+        <p style={{
+          fontFamily: "Inter", fontSize: 13, color: C.accent,
+          margin: "0 0 24px", fontWeight: 600,
+        }}>Дедлайн подачи заявок: 15 мая 2026</p>
+      </> : (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+          <Badge>Активности</Badge>
+          <span style={{ fontFamily: "Inter", fontSize: 13, color: C.textDim }}>{stepLabels[step]}</span>
+        </div>
+      )}
+
+      <StepIndicator current={step} total={4} labels={stepLabels} />
+
+      {/* ── STEP 0: О тебе ── */}
+      {step === 0 && <div style={{ animation: 'fadeIn 0.35s ease' }}>
+        <AvatarUpload imageUrl={d.avatar || ""} onChange={v => s("avatar", v)} />
+        <Input label="Имя и фамилия" required value={d.name || ""} onChange={v => s("name", v)} placeholder="Как тебя зовут?" />
+        <PhoneInput label="Номер телефона" required value={d.phone || ""} onChange={v => s("phone", v)} />
+        <TelegramInput label="Telegram" required value={d.telegram || ""} onChange={v => s("telegram", v)} />
+        <TextArea label="О себе как организаторе" hint="Отличительные черты, что хочешь сообщить о себе для аудитории — это поможет в составлении анонса" required value={d.bio || ""} onChange={v => s("bio", v)} maxLength={500} />
+        <Divider title="Соцсети" />
+        <Input label="Instagram" value={d.instagram || ""} onChange={v => s("instagram", v)} placeholder="https://instagram.com/..." />
+        <p style={{ fontFamily: "Inter", fontSize: 12, color: C.textDim, margin: "0 0 10px" }}>Другие соцсети</p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+          {[
+            { key: "vk", label: "VK", ph: "vk.com/..." },
+            { key: "youtube", label: "YouTube", ph: "youtube.com/..." },
+            { key: "tgChannel", label: "TG-канал", ph: "t.me/..." },
+            { key: "otherLink", label: "Другое", ph: "ссылка" },
+          ].map(f => (
+            <div key={f.key}>
+              <label style={{ fontFamily: "Inter", fontSize: 11, color: C.textMuted, display: "block", marginBottom: 4 }}>{f.label}</label>
+              <input value={d[f.key] || ""} onChange={e => s(f.key, e.target.value)} placeholder={f.ph}
+                style={{
+                  width: "100%", padding: "9px 12px", fontFamily: "Inter", fontSize: 13,
+                  color: C.text, background: C.bg, border: `1px solid ${C.border}`,
+                  borderRadius: 8, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s",
+                }}
+                onFocus={e => e.target.style.borderColor = C.accent}
+                onBlur={e => e.target.style.borderColor = C.border}
+              />
+            </div>
+          ))}
+        </div>
+      </div>}
+
+      {/* ── STEP 1: Твоя активность ── */}
+      {step === 1 && <div style={{ animation: 'fadeIn 0.35s ease' }}>
+        <Input label="Название активности" required value={d.title || ""} onChange={v => s("title", v)} placeholder="Как назовём?" />
+        <CheckGroupWithOther label="Тип активности" required
+          options={["Мастер-класс", "Маркет", "Перформанс", "Спорт", "Wellness", "Лекция", "Другое"]}
+          value={Array.isArray(d.type) ? d.type : d.type ? [d.type] : []}
+          onChange={v => s("type", v)}
+          otherValue={d.typeOther || ""} onOtherChange={v => s("typeOther", v)} />
+        <TextArea label="Описание активности" hint="Что будешь делать, о чём рассказывать, что продавать, чему учить? Чем удивлять будешь?" required value={d.description || ""} onChange={v => s("description", v)} maxLength={500} />
+        <TextArea label="Почему эта активность подходит для Elkino?" hint="Почему людям захочется потратить на это время?" required value={d.whyElkino || ""} onChange={v => s("whyElkino", v)} maxLength={500} />
+        <Input label="Ссылка на портфолио / примеры" hint="Фото товаров, видео мастер-класса, сайт — что угодно, что покажет твою активность" value={d.portfolio || ""} onChange={v => s("portfolio", v)} placeholder="https://..." />
+      </div>}
+
+      {/* ── STEP 2: Детали ── */}
+      {step === 2 && <div style={{ animation: 'fadeIn 0.35s ease' }}>
+        <p style={{
+          fontFamily: "Inter", fontSize: 12, color: C.textDim, fontStyle: "italic",
+          margin: "0 0 20px", lineHeight: 1.5, padding: "10px 14px",
+          background: C.surface, borderRadius: 8, border: `1px solid ${C.border}`,
+        }}>Тайминги и расписание могут корректироваться организатором. Мы постараемся учесть твои пожелания, но финальное время подтвердим отдельно.</p>
+        <RadioGroup label="Длительность" required
+          options={["30 мин", "60 мин", "90 мин", "120 мин", "Весь день"]}
+          value={d.duration || ""} onChange={v => s("duration", v)} />
+        <RadioGroup label="Желаемая дата" required
+          options={["Пятница, 29 мая", "Суббота, 30 мая", "Оба дня"]}
+          value={d.date || ""} onChange={v => s("date", v)} />
+        <Dropdown label="Желаемое время" required
+          options={timeSlots} value={d.time || ""}
+          onChange={v => s("time", v)} placeholder="Выбери временной слот" />
+        <Input label="Сколько человек может участвовать одновременно?" hint="Примерная оценка — поможет нам спланировать пространство" required value={d.capacity || ""} onChange={v => s("capacity", v)} placeholder="Число" />
+        <Divider title="Пространство" />
+        <CheckGroupWithOther label="Требования к месту"
+          options={["Под навесом", "В палатке", "Без разницы"]}
+          value={d.space || []} onChange={v => s("space", v)}
+          otherValue="" onOtherChange={() => {}} />
+        <RadioGroup label="Уровень шума"
+          options={["Тихая", "Средняя", "Громкая"]}
+          value={d.noise || ""} onChange={v => s("noise", v)} />
+        <RadioGroup label="Работает без ведущего?" hint="Может ли активность работать когда тебя нет рядом?" required
+          options={["Да, полностью", "Частично", "Нет, нужен ведущий"]}
+          value={d.autonomous || ""} onChange={v => s("autonomous", v)} />
+      </div>}
+
+      {/* ── STEP 3: Финал ── */}
+      {step === 3 && <div style={{ animation: 'fadeIn 0.35s ease' }}>
+        <div style={{
+          background: C.surface, borderRadius: 12, border: `1px solid ${C.border}`,
+          padding: "16px 18px", marginBottom: 24,
+        }}>
+          <p style={{ fontFamily: "Unbounded", fontSize: 12, color: C.accent, margin: "0 0 12px", letterSpacing: "0.05em" }}>Проверь заявку</p>
+          <ReviewRow label="Имя" value={d.name} />
+          <ReviewRow label="Активность" value={d.title} />
+          <ReviewRow label="Тип" value={d.type} />
+          <ReviewRow label="Почему Elkino" value={d.whyElkino} />
+          <ReviewRow label="Длительность" value={d.duration} />
+          <ReviewRow label="Дата" value={d.date} />
+          <ReviewRow label="Время" value={d.time} />
+          <ReviewRow label="Участников" value={d.capacity} />
+          <ReviewRow label="Без ведущего" value={d.autonomous} />
+          <p style={{ fontFamily: "Inter", fontSize: 11, color: C.textMuted, margin: "10px 0 0", lineHeight: 1.4 }}>Если что-то не так — вернись на нужный шаг через кнопку «← предыдущий шаг»</p>
+        </div>
+
+        <Divider title="Оснащение" />
+        <TextArea label="Какой инвентарь у тебя есть?" hint="Опиши максимально подробно" value={d.inventory || ""} onChange={v => s("inventory", v)} maxLength={500} />
+        <TextArea label="Что нужно от нас?" hint="Например: электричество, кипяток, краски, стол, стулья, микрофон. Если ничего не нужно — напиши «всё своё»" required value={d.needs || ""} onChange={v => s("needs", v)} maxLength={500} />
+
+        <Divider title="Материалы" />
+        <FileUpload label="Доп материалы для анонса" hint="Фото, лого — формат 9×16 или 1080×1920"
+          fileName={d.photo || ""} onChange={v => s("photo", v)} />
+        <TextArea label="Свободное поле" hint="Дай знать, если хочешь сообщить ещё что-то" value={d.comments || ""} onChange={v => s("comments", v)} maxLength={500} />
+
+        <div style={{ marginBottom: 20 }}>
+          <label style={{
+            display: "flex", alignItems: "flex-start", gap: 12, cursor: "pointer",
+            fontFamily: "Inter", fontSize: 13, color: C.text, lineHeight: 1.5,
+          }} onClick={() => s("agree", !d.agree)}>
+            <div style={{
+              width: 22, height: 22, minWidth: 22, borderRadius: 6, marginTop: 1,
+              border: `2px solid ${d.agree ? C.accent : error && !d.agree ? "#ff5252" : C.border}`,
+              background: d.agree ? C.accent : "none",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              transition: "all 0.2s",
+            }}>
+              {d.agree && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.bg} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7"/></svg>}
+            </div>
+            <span>Я согласен с правилами участия в фестивале <span style={{ color: C.accent }}>*</span></span>
+          </label>
+        </div>
+      </div>}
+
+      {error && (
+        <div style={{
+          padding: "10px 16px", marginBottom: 12, borderRadius: 8,
+          background: "#ff525215", border: "1px solid #ff525233",
+          textAlign: "center",
+          animation: "shake 0.4s ease",
+        }}>
+          <style>{`@keyframes shake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-6px); } 40%,80% { transform: translateX(6px); } }`}</style>
+          <p style={{ fontFamily: "Inter", fontSize: 13, color: "#ff5252", margin: 0 }}>{error}</p>
+        </div>
+      )}
+
+      <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+        {step > 0 && navBtn("Назад", back, false)}
+        {step < 3 ? navBtn("Далее", next, true) : navBtn("Отправить заявку", handleSubmit, true)}
+      </div>
+
+      <SocialFooter style={{ marginTop: 48, paddingBottom: 20 }} />
+    </div>
+  );
+};
+
+// ─── SUCCESS ───
+
+const Success = ({ type, onBack }) => (
+  <div style={{
+    minHeight: "100vh", display: "flex", flexDirection: "column",
+    alignItems: "center", justifyContent: "center",
+    padding: "40px 20px", textAlign: "center",
+  }}>
+    <div style={{
+      width: 80, height: 80, borderRadius: "50%",
+      background: C.successDim, display: "flex",
+      alignItems: "center", justifyContent: "center",
+      marginBottom: 24, fontSize: 36, color: C.success,
+    }}>✓</div>
+    <h1 style={{
+      fontFamily: "Unbounded", fontSize: 28, fontWeight: 800,
+      color: C.white, margin: "0 0 12px",
+    }}>Заявка отправлена</h1>
+    <p style={{
+      fontFamily: "Inter", fontSize: 16, color: C.textDim,
+      margin: "0 0 8px", lineHeight: 1.5, maxWidth: 400,
+    }}>
+      {type === "artist"
+        ? "Мы получили твою заявку на выступление. Свяжемся в ближайшее время для уточнения деталей."
+        : "Мы получили заявку на активность. Куратор свяжется с тобой для обсуждения."
+      }
+    </p>
+    <p style={{
+      fontFamily: "Unbounded", fontSize: 11, color: C.accent,
+      margin: "0 0 32px", letterSpacing: "0.15em",
+    }}>✳ ВСЕ ДОРОГИ ВЕДУТ В ЕЛКИНО</p>
+    <button onClick={onBack} style={{
+      padding: "12px 32px",
+      fontFamily: "Unbounded", fontSize: 13, fontWeight: 600,
+      color: C.text, background: C.surface,
+      border: `1px solid ${C.border}`, borderRadius: 10,
+      cursor: "pointer", transition: "all 0.2s",
+    }}
+      onMouseEnter={e => { e.target.style.borderColor = C.borderHover; e.target.style.transform = "translateY(-2px)"; }}
+      onMouseLeave={e => { e.target.style.borderColor = C.border; e.target.style.transform = "none"; }}
+    >На главную</button>
+    <a href="https://elkinogang.ru/" target="_blank" rel="noopener noreferrer" style={{
+      display: "inline-block", marginTop: 10, padding: "12px 32px",
+      fontFamily: "Unbounded", fontSize: 13, fontWeight: 600,
+      color: C.accent, background: "none",
+      border: `1px solid ${C.accent}`, borderRadius: 10,
+      textDecoration: "none", transition: "all 0.2s",
+    }}
+      onMouseEnter={e => { e.currentTarget.style.background = C.accent; e.currentTarget.style.color = C.bg; }}
+      onMouseLeave={e => { e.currentTarget.style.background = "none"; e.currentTarget.style.color = C.accent; }}
+    >На сайт</a>
+    <SocialFooter style={{ marginTop: 36 }} />
+  </div>
+);
+
+// ─── APP ───
+
+function App() {
+  const [view, setView] = useState("landing");
+  const [submitType, setSubmitType] = useState(null);
+  const deadline = new Date("2026-05-15T23:59:59").getTime();
+  const isExpired = Date.now() > deadline;
+
+  const handleSubmit = (type, data) => {
+    setSubmitType(type);
+    setView("success");
+  };
+
+  const handleSelect = (v) => {
+    if (isExpired) return;
+    setView(v);
+  };
+
+  return (
+    <div style={{ background: C.bg, color: C.text, minHeight: "100vh" }}>
+      <style>{FONTS_CSS}</style>
+      {view === "landing" && <Landing onSelect={handleSelect} expired={isExpired} />}
+      {view === "artist" && !isExpired && <ArtistForm onBack={() => setView("landing")} onSubmit={d => handleSubmit("artist", d)} />}
+      {view === "activity" && !isExpired && <ActivityForm onBack={() => setView("landing")} onSubmit={d => handleSubmit("activity", d)} />}
+      {view === "success" && <Success type={submitType} onBack={() => setView("landing")} />}
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+  </script>
+</body>
+</html>
